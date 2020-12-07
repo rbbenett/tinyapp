@@ -9,6 +9,11 @@ const urlDatatbase = {
   "9sm5xK": "http://google.com"
 };
 
+app.get("/urls", (req, res) => {
+  const templateVars = {urls: urlDatatbase};
+  res.render("urls_index", templateVars);
+});
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
