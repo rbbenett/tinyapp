@@ -24,11 +24,15 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 });
+
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username)
+  res.redirect('/urls');
+})
 
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
