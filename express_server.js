@@ -23,6 +23,8 @@ const urlDatabase = {
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
@@ -46,6 +48,14 @@ app.get("/u/:shortURL", (req, res) => {
     res.redirect(fullURL);
   }
 });
+
+app.post('/urls/:url_id', (req, res) => {
+  const key = req.params.url_id;
+  const longURL = req.body.longURL;
+  urlDatabase[key] = longURL;
+
+  res.redirect('/urls')
+})
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
