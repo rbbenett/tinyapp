@@ -36,6 +36,12 @@ app.post('/urls', (req, res) => {
   res.redirect('http://localhost:8080/urls/');
 });
 
+app.post('/urls/:url_id/delete', (req, res) => {
+  delete urlDatabase[req.params.url_id];
+  res.redirect('/urls');
+
+})
+
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
     fullURL = urlDatabase[req.params.shortURL];
