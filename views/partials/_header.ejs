@@ -12,12 +12,12 @@
             </form>
               <p>Logged in as: <%= username %>!</p>
               <form method ="POST" action="/logout">
-              <button style="background-color:#28a745; ;border-color: black; color: black" type="submit" class="logout">Logout</button>
+              <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="logout">Logout</button>
               </form>
           <% } else { %>
             <form method="POST" action="/login">
               <input type="text" name="username">
-              <button style="background-color:#28a745; ;border-color: black; color: black" type="submit" class="login">Login</button>
+              <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="login">Login</button>
           <% } %>
       </div>
     </div>
