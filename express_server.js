@@ -26,40 +26,49 @@ const urlDatabase = {
 };
 
 // Stores database of user information
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 // Add new user to database
 const addNewUser = function(email, password, database) {
-  let user_id = generateRandomString();
+  let userID = generateRandomString();
   const newUser = {
-    "id": user_id,
+    "id": userID,
     "email": email,
     "password": password
+  };
+  users[userID] = newUser;
+  return userID;
+};
+
+const checkEmailExists = function(userEmail) {
+  for (const id in users) {
+    if (users[id]['email'] === userEmail) {
+      return true;
+    }
   }
-  users[user_id] = newUser;
-  return user_id;   
-}
+  return false;
+};
 
 // Creates new page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {user: users[req.cookies['user_id']]};
+  const templateVars = {user: users[req.cookies['userID']]};
   res.render("urls_new", templateVars);
 });
 
 // Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']]};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['userID']]};
   res.render("urls_show", templateVars);
 });
 
@@ -76,7 +85,7 @@ app.get('/register', (req, res) => {
 // Adds new shortened URL page to database
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL]) {
-    fullURL = urlDatabase[req.params.shortURL];
+    const fullURL = urlDatabase[req.params.shortURL];
     res.redirect(fullURL);
   }
 });
@@ -87,7 +96,7 @@ app.get("/urls.json", (req, res) => {
 
 // Creates main page showing all the URLs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  const templateVars = { urls: urlDatabase, user: users[req.cookies['userID']] };
   res.render("urls_index", templateVars);
 });
 
@@ -101,10 +110,16 @@ app.post('/login', (req, res) => {
 app.post('/register', (req, res) => {
   let email = req.body.email;
   let password = req.body.password;
-  const user_id = addNewUser(email, password, users)  
-    res.cookie('user_id', user_id)
-    res.redirect('/urls')
-})
+  if (email === "" | password === "") {
+    res.status(400).send("Error: Please fill in both fields!");
+  } else if (checkEmailExists(email)) {
+    res.status(400).send("Error: This email already exists!");
+  } else {
+    const userID = addNewUser(email, password, users);
+    res.cookie('userID', userID);
+    res.redirect('/urls');
+  }
+});
 
 // Saves new URLs to main page database
 app.post('/urls', (req, res) => {
