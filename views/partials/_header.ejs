@@ -5,14 +5,13 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <div class="d-flex">
-        <a class="nav-item nav-link" href="/urls">My URLs</a>
-        <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+      <div class="navbar-nav ml-auto">
+        <a class="nav-item nav-link mr-auto" href="/urls">My URLs</a>
+        <a class="nav-item nav-link mr-auto" href="/urls/new">Create New URL</a>
           <% if (username) { %>
             </form>
               <p>Logged in as: <%= username %>!</p>
-              <form style="margin-left: 100px;"   method ="POST" action="/logout">
+              <form method ="POST" action="/logout">
               <button style="background-color:#28a745; ;border-color: black; color: black" type="submit" class="logout">Logout</button>
               </form>
           <% } else { %>
