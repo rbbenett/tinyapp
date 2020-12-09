@@ -9,6 +9,7 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
+// Genarates a random string of 6 letter
 const generateRandomString = function() {
   let randomString = '';
   const characterList = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -18,26 +19,94 @@ const generateRandomString = function() {
   return randomString;
 };
 
+// Stores database of URLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+// Stores database of user information
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
+
+// Add new user to database
+const addNewUser = function(email, password, database) {
+  let user_id = generateRandomString();
+  const newUser = {
+    "id": user_id,
+    "email": email,
+    "password": password
+  }
+  users[user_id] = newUser;
+  return user_id;   
+}
+
+// Creates new page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {username: req.cookies['username']};
+  const templateVars = {user: users[req.cookies['user_id']]};
   res.render("urls_new", templateVars);
 });
 
+// Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies['username']};
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], user: users[req.cookies['user_id']]};
   res.render("urls_show", templateVars);
 });
 
+// Creates login page
+app.get('/login', (req, res) => {
+  res.render('login');
+});
+
+// Creates registration page
+app.get('/register', (req, res) => {
+  res.render('register');
+});
+
+// Adds new shortened URL page to database
+app.get("/u/:shortURL", (req, res) => {
+  if (urlDatabase[req.params.shortURL]) {
+    fullURL = urlDatabase[req.params.shortURL];
+    res.redirect(fullURL);
+  }
+});
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// Creates main page showing all the URLs
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase, user: users[req.cookies['user_id']] };
+  res.render("urls_index", templateVars);
+});
+
+// Saves the login info to the website
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username);
   res.redirect('/urls');
 });
 
+// Saves new user registration to database
+app.post('/register', (req, res) => {
+  let email = req.body.email;
+  let password = req.body.password;
+  const user_id = addNewUser(email, password, users)  
+    res.cookie('user_id', user_id)
+    res.redirect('/urls')
+})
+
+// Saves new URLs to main page database
 app.post('/urls', (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
@@ -45,18 +114,13 @@ app.post('/urls', (req, res) => {
   res.redirect('http://localhost:8080/urls/');
 });
 
+// Allows user to delete a URL from database
 app.post('/urls/:url_id/delete', (req, res) => {
   delete urlDatabase[req.params.url_id];
   res.redirect('/urls');
 });
 
-app.get("/u/:shortURL", (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    const fullURL = urlDatabase[req.params.shortURL];
-    res.redirect(fullURL);
-  }
-});
-
+// Saves long URL to the shortened URL webpage
 app.post('/urls/:url_id', (req, res) => {
   const key = req.params.url_id;
   const longURL = req.body.longURL;
@@ -64,18 +128,10 @@ app.post('/urls/:url_id', (req, res) => {
   res.redirect('/urls');
 });
 
+// Allows user to logout and clear the cookie from the website
 app.post("/logout", (req, res) => {
   res.clearCookie('username', req.body.username);
   res.redirect('/urls');
-});
-
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, username: req.cookies['username'] };
-  res.render("urls_index", templateVars);
 });
 
 app.get("/hello", (req, res) => {

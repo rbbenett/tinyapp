@@ -8,9 +8,9 @@
       <div class="navbar-nav ml-auto">
         <a class="nav-item nav-link mr-auto" href="/urls">My URLs</a>
         <a class="nav-item nav-link mr-auto" href="/urls/new">Create New URL</a>
-          <% if (username) { %>
+          <% if (user) { %>
             </form>
-              <p>Logged in as: <%= username %>!</p>
+              <p>Logged in as: <%= user.email %>!</p>
               <form method ="POST" action="/logout">
               <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="logout">Logout</button>
               </form>
