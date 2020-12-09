@@ -5,19 +5,18 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav ml-auto">
-        <a class="nav-item nav-link mr-auto" href="/urls">My URLs</a>
-        <a class="nav-item nav-link mr-auto" href="/urls/new">Create New URL</a>
-          <% if (user) { %>
+      <div class="navbar-nav">
+        <a class="nav-item nav-link ml-auto" href="/urls">My URLs</a>
+        <a class="nav-item nav-link ml-auto" href="/urls/new">Create New URL</a>
+        <% if (user) { %>
+          </form>
+            <p>Logged in as: <%= user.email %>!</p>
+            <form method ="POST" action="/logout">
+            <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="logout">Logout</button>
             </form>
-              <p>Logged in as: <%= user.email %>!</p>
-              <form method ="POST" action="/logout">
-              <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="logout">Logout</button>
-              </form>
-          <% } else { %>
-            <form method="POST" action="/login">
-              <input type="text" name="username">
-              <button class="btn btn-primary" style="background-color:#28a745; ;border-color: black; color: black" input type="submit" class="login">Login</button>
+            <% } else { %>
+            <a class="nav-item nav-link mr-auto" href="/login">Login</a>
+            <a class="nav-item nav-link mr-auto" href="/register">Register</a>
           <% } %>
       </div>
     </div>
