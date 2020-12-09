@@ -61,9 +61,13 @@ app.post('/urls/:url_id', (req, res) => {
   const key = req.params.url_id;
   const longURL = req.body.longURL;
   urlDatabase[key] = longURL;
-
   res.redirect('/urls')
-})
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie('username', req.body.username);
+  res.redirect('/urls');
+});
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
