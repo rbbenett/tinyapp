@@ -87,7 +87,7 @@ const getIDByEmail = function(userEmail) {
 
 // Checks User Id and return only URLs associated with that ID
 const urlsForUser = function(id) {
-  const userURLs = {};
+  let userURLs = {};
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].user_id === id) {
       userURLs[shortURL] = urlDatabase[shortURL];
