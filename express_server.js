@@ -67,21 +67,11 @@ const checkEmailExists = function(userEmail) {
   return false;
 };
 
-// Checks to see if password is already in database
-const checkPasswordExists = function(password) {
-  for (const id in users) {
-    if (users[id]["password"] === password) {
-      return true;
-    }
-  }
-  return false;
-};
-
 // Returns the ID associated with user"s email
 const getIDByEmail = function(userEmail) {
   for (const id in users) {
     if (users[id]["email"] === userEmail) {
-      return users[id]["id"];
+      return users[id];
     }
   }
 };
@@ -89,13 +79,11 @@ const getIDByEmail = function(userEmail) {
 // Checks User Id and return only URLs associated with that ID
 const urlsForUser = function(userID, urlDatabase) {
   const userURLs = {};
-  console.log("Full URL Database:", urlDatabase)
   for (const shortURL in urlDatabase) {
     if (urlDatabase[shortURL].userID === userID) {
       userURLs[shortURL] = urlDatabase[shortURL];
     }
   }
-  console.log("User URLs:", userURLs)
   return userURLs;
 };
 
@@ -164,11 +152,8 @@ app.get("/urls.json", (req, res) => {
 // Creates main page showing all the URLs
 app.get("/urls", (req, res) => {
   const userID =  req.cookies.user_id;
-  console.log("User ID:", userID)
   const user = users[userID];
-  console.log("User Database:", users)
   const userURLs = urlsForUser(userID, urlDatabase);
-  console.log(userURLs)
   const templateVars = { 
       urls: userURLs,
       user: user
@@ -181,8 +166,8 @@ app.get("/urls", (req, res) => {
 
 // Saves new user registration to database
 app.post("/register", (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
+  const email = req.body.email;
+  const password = bcrypt.hashSync(req.body.password, 10);
   if (email === "" | password === "") {
     res.status(400).send("Error: Please fill in both fields!");
   } else if (checkEmailExists(email)) {
@@ -196,16 +181,16 @@ app.post("/register", (req, res) => {
 
 // Saves the login info to the website
 app.post("/login", (req, res) => {
-  let email = req.body.email;
-  let password = req.body.password;
+  const email = req.body.email;
+  const password = req.body.password;
   if (checkEmailExists(email) === false) {
     res.status(403).send("Error: Couldn't find an account with that email!");
-  } else if (checkEmailExists(email) === true && checkPasswordExists(password) === false) {
-    res.status(403).send("Error: Incorrect Password!");
-  } else {
-    const userID = getIDByEmail(email);
+  }  else if (bcrypt.compareSync(password, getIDByEmail(email)["password"])) {
+    const userID = getIDByEmail(email)["id"];
     res.cookie("user_id", userID);
     res.redirect("/urls");
+  } else {
+    res.status(403).send("Error: Incorrect Password!");
   }
 });
 
@@ -222,7 +207,6 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: users[req.cookies.user_id]["id"]
   };
-  console.log(urlDatabase[newShortURL])
   res.redirect(`/urls/${newShortURL}`);
 });
 
