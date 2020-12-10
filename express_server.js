@@ -101,25 +101,37 @@ const urlsForUser = function(id) {
 
 // Creates new page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {user: users[req.cookies['user_id']]};
+  const templateVars = {
+    user: users[req.cookies.user_id]
+  };
   res.render("urls_new", templateVars);
 });
 
 // Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, user: users[req.cookies.user_id]};
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL].longURL, 
+    user: users[req.cookies.user_id]
+  };
   res.render("urls_show", templateVars);
 });
 
 // Creates login page
 app.get("/login", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies.user_id] };
+  const templateVars = {
+    urls: urlDatabase,
+    user: users[req.cookies.user_id]
+  };
   res.render("login", templateVars);
 });
 
 // Creates registration page
 app.get("/register", (req, res) => {
-  const templateVars = { urls: urlDatabase, user: users[req.cookies.user_id] };
+  const templateVars = { 
+    urls: urlDatabase,
+    user: users[req.cookies.user_id] 
+  };
   res.render("register", templateVars);
 });
 
@@ -135,7 +147,10 @@ app.get("/urls.json", (req, res) => {
 
 // Creates main page showing all the URLs
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlsForUser(req.cookies.users_id), user: users[req.cookies.user_id] };
+  const templateVars = { 
+    urls: urlsForUser(req.cookies.users_id),
+    user: users[req.cookies.user_id]
+  };
   res.render("urls_index", templateVars);
 });
 
@@ -181,7 +196,10 @@ app.post("/logout", (req, res) => {
 // Saves new URLs to main page database
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
-  urlDatabase[newShortURL] = { longURL: [req.body.longURL], user: users[req.cookies.user_id] };
+  urlDatabase[newShortURL] = {
+    longURL: [req.body.longURL],
+    user: users[req.cookies.user_id]
+  };
   res.redirect(`/urls/${newShortURL}`);
 });
 
