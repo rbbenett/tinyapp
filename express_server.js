@@ -4,7 +4,9 @@ const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
-const { getUserByEmail} = require('./helpers')
+const methodOverride = require('method-override');
+const { getUserByEmail, addNewUser, checkEmailExists, urlsForUser, generateRandomString } = require('./helpers');
+const { urlDatabase, userDatabase } = require('./databaseObj');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'session',
@@ -13,85 +15,8 @@ app.use(cookieSession({
   // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
+app.use(methodOverride('_method'));
 app.set("view engine", "ejs");
-
-//                      STORAGE
-// =======================================================
-
-// // Stores database of URLs
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "shwi43" },
-  i45Ufs: { longURL: "https://www.reddit.com", userID: "123" }
-};
-
-// Stores database of user information
-const userDatabase = { 
-  "userRandomID": {
-    id: "123", 
-    email: "user@example.com", 
-    password: "qwe"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-};
-
-//                     HELPER FUNCTIONS
-// =======================================================
-
-// Genarates a random string of 6 letter
-const generateRandomString = function() {
-  let randomString = "";
-  const characterList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  for (let x = 0; x < 6; x += 1) {
-    randomString += characterList.charAt(Math.floor(Math.random() * characterList.length));
-  }
-  return randomString;
-};
-
-// Adds new user to database
-const addNewUser = function(email, password, database) {
-  let userID = generateRandomString();
-  const newUser = {
-    "id": userID,
-    "email": email,
-    "password": password
-  };
-  userDatabase[userID] = newUser;
-  return userID;
-};
-
-// Checks to see if email is already in database
-const checkEmailExists = function(userEmail) {
-  for (const id in userDatabase) {
-    if (userDatabase[id]["email"] === userEmail) {
-      return true;
-    }
-  }
-  return false;
-};
-
-// Checks User Id and return only URLs associated with that ID
-const urlsForUser = function(userID, urlDatabase) {
-  const userURLs = {};
-  for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].userID === userID) {
-      userURLs[shortURL] = urlDatabase[shortURL];
-    }
-  }
-  return userURLs;
-};
-
-// Get user object by user ID
-const getUserById = function(userId) {
-  for (const id in userDatabase) {
-    return userDatabase[id]["id"];
-  }
-  
-}
 
 //                          GET REQUESTS
 // =========================================================
@@ -100,20 +25,19 @@ const getUserById = function(userId) {
 app.get("/urls/new", (req, res) => {
   if (userDatabase[req.session.user_id]) {
     const templateVars = {
-    user: userDatabase[req.session.user_id]
-  };
-  res.render("urls_new", templateVars);
-} else {
-  res.redirect("/login")
-}
-  
+      user: userDatabase[req.session.user_id]
+    };
+    res.render("urls_new", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { 
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL].longURL, 
+  const templateVars = {
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL]['longURL'],
     user: userDatabase[req.session.user_id]
   };
   res.render("urls_show", templateVars);
@@ -130,17 +54,17 @@ app.get("/login", (req, res) => {
 
 // Creates registration page
 app.get("/register", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     urls: urlDatabase,
-    user: userDatabase[req.session.user_id] 
+    user: userDatabase[req.session.user_id]
   };
   res.render("register", templateVars);
 });
 
 // Adds new shortened URL page to database
 app.get("/u/:shortURL", (req, res) => {
-    const longURL = urlDatabase[req.params.shortURL].longURL;
-    res.redirect(longURL);
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -152,11 +76,11 @@ app.get("/urls", (req, res) => {
   const userID =  req.session.user_id;
   const user = userDatabase[userID];
   const userURLs = urlsForUser(userID, urlDatabase);
-  const templateVars = { 
-      urls: userURLs,
-      user: user
-    };
-      res.render("urls_index", templateVars);       
+  const templateVars = {
+    urls: userURLs,
+    user: user
+  };
+  res.render("urls_index", templateVars);
 });
 
 app.get("/hello", (req, res) => {
@@ -165,9 +89,9 @@ app.get("/hello", (req, res) => {
 
 app.get("/", (req, res) => {
   if (userDatabase[req.session.user_id]) {
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
   }
 });
 
@@ -221,25 +145,26 @@ app.post("/urls", (req, res) => {
 });
 
 // Allows user to delete a URL from database
-app.post("/urls/:url_id/delete", (req, res) => {
+app.delete("/urls/:url_id/delete", (req, res) => {
   if (userDatabase[req.session.user_id]) {
     delete urlDatabase[req.params.url_id];
     res.redirect("/urls");
   } else {
-    res.status(405).send("Error: You don't have permission to do that!")
+    res.status(405).send("Error: You don't have permission to do that!");
   }
 });
 
 // Saves updated long URL to the shortened URL webpage
-app.post("/urls/:shortURL", (req, res) => {
+app.put("/urls/:shortURL", (req, res) => {
   if (userDatabase[req.session.user_id]) {
-    urlDatabase[req.params.shortURL].longURL = req.body.longURL
+    urlDatabase[req.params.shortURL].longURL = req.body.longURL;
     res.redirect("/urls");
   } else {
-    res.status(405).send("Error: You don't have permission to do that!")
+    res.status(405).send("Error: You don't have permission to do that!");
   }
 });
 
+///////////////////////////////////////////////////////////////////////////////
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
