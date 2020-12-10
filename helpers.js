@@ -1,6 +1,4 @@
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const { urlDatabase, userDatabase } = require('./databaseObj')
+const { urlDatabase, userDatabase } = require('./databaseObj');
 
 
 //                     HELPER FUNCTIONS
