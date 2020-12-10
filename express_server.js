@@ -3,6 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcrypt');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
@@ -86,25 +87,40 @@ const getIDByEmail = function(userEmail) {
 };
 
 // Checks User Id and return only URLs associated with that ID
-const urlsForUser = function(id) {
-  let userURLs = {};
+const urlsForUser = function(userID, urlDatabase) {
+  const userURLs = {};
+  console.log("Full URL Database:", urlDatabase)
   for (const shortURL in urlDatabase) {
-    if (urlDatabase[shortURL].user_id === id) {
+    if (urlDatabase[shortURL].userID === userID) {
       userURLs[shortURL] = urlDatabase[shortURL];
     }
   }
+  console.log("User URLs:", userURLs)
   return userURLs;
 };
+
+// Get user object by user ID
+const getUserById = function(userId) {
+  for (const id in users) {
+    return users[id]["id"];
+  }
+  
+}
 
 //                          GET REQUESTS
 // =========================================================
 
 // Creates new page
 app.get("/urls/new", (req, res) => {
-  const templateVars = {
+  if (users[req.cookies.user_id]) {
+    const templateVars = {
     user: users[req.cookies.user_id]
   };
   res.render("urls_new", templateVars);
+} else {
+  res.redirect("/login")
+}
+  
 });
 
 // Creates the page for each URL
@@ -147,11 +163,17 @@ app.get("/urls.json", (req, res) => {
 
 // Creates main page showing all the URLs
 app.get("/urls", (req, res) => {
+  const userID =  req.cookies.user_id;
+  console.log("User ID:", userID)
+  const user = users[userID];
+  console.log("User Database:", users)
+  const userURLs = urlsForUser(userID, urlDatabase);
+  console.log(userURLs)
   const templateVars = { 
-    urls: urlsForUser(req.cookies.users_id),
-    user: users[req.cookies.user_id]
-  };
-  res.render("urls_index", templateVars);
+      urls: userURLs,
+      user: user
+    }
+    res.render("urls_index", templateVars);   
 });
 
 //                        POST REQUESTS
@@ -197,9 +219,10 @@ app.post("/logout", (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   urlDatabase[newShortURL] = {
-    longURL: [req.body.longURL],
-    user: users[req.cookies.user_id]
+    longURL: req.body.longURL,
+    userID: users[req.cookies.user_id]["id"]
   };
+  console.log(urlDatabase[newShortURL])
   res.redirect(`/urls/${newShortURL}`);
 });
 
