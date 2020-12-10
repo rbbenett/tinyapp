@@ -39,7 +39,7 @@ const userDatabase = {
   }
 };
 
-//                      FUNCTIONS
+//                     HELPER FUNCTIONS
 // =======================================================
 
 // Genarates a random string of 6 letter
@@ -155,8 +155,20 @@ app.get("/urls", (req, res) => {
   const templateVars = { 
       urls: userURLs,
       user: user
-    }
-    res.render("urls_index", templateVars);   
+    };
+      res.render("urls_index", templateVars);       
+});
+
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+app.get("/", (req, res) => {
+  if (userDatabase[req.session.user_id]) {
+    res.redirect('/urls')
+  } else {
+    res.redirect('/login')
+  }
 });
 
 //                        POST REQUESTS
@@ -183,8 +195,8 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   if (checkEmailExists(email) === false) {
     res.status(403).send("Error: Couldn't find an account with that email!");
-  }  else if (bcrypt.compareSync(password, getUserByEmail["password"])) {
-    const userID = getUserByEmail["id"];
+  }  else if (bcrypt.compareSync(password, getUserByEmail(email, userDatabase)["password"])) {
+    const userID = getUserByEmail(email, userDatabase)["id"];
     req.session.user_id = userID;
     res.redirect("/urls");
   } else {
@@ -225,18 +237,6 @@ app.post("/urls/:shortURL", (req, res) => {
     res.redirect("/urls");
   } else {
     res.status(405).send("Error: You don't have permission to do that!")
-  }
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
-app.get("/", (req, res) => {
-  if (userDatabase[req.session.user_id]) {
-    res.redirect('/urls')
-  } else {
-    res.redirect('/login')
   }
 });
 
