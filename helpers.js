@@ -56,4 +56,8 @@ const getUserByEmail = function(userEmail, userDatabase) {
   }
 };
 
-module.exports = { urlDatabase, userDatabase, getUserByEmail, addNewUser, checkEmailExists, urlsForUser, generateRandomString };
+const getUserById = function(userId) {
+  return userDatabase[userId];
+}
+
+module.exports = { urlDatabase, userDatabase, getUserByEmail, addNewUser, checkEmailExists, urlsForUser, generateRandomString, getUserById };
