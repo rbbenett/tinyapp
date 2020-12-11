@@ -11,7 +11,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 :point_down::point_down::point_down:What the URL Creation page looks like:point_down::point_down::point_down:
 !["screenshot of new URL creation page"](https://raw.githubusercontent.com/rbbenett/tinyapp/efe0fe36dacb9d9612df0de03f1f90d461b1f883/docs/Create-URL-Page.png)
 :point_down::point_down::point_down:What the URL Edit page looks like:point_down::point_down::point_down:
-!["screenshot of URL edit page"](https://raw.githubusercontent.com/rbbenett/tinyapp/efe0fe36dacb9d9612df0de03f1f90d461b1f883/docs/Edit-URL-Page.png)
+!["screenshot of URL edit page"](https://raw.githubusercontent.com/rbbenett/tinyapp/e5732d31ad59e8f400752baab35b26ca1ee9902e/docs/Edit-URL-Page.png)
 :point_down::point_down::point_down:What the User Login page looks like:point_down::point_down::point_down:
 !["screenshot of user login page"](https://raw.githubusercontent.com/rbbenett/tinyapp/efe0fe36dacb9d9612df0de03f1f90d461b1f883/docs/Login-Page.png)
 :point_down::point_down::point_down:What the New User Registration page looks like:point_down::point_down::point_down:
