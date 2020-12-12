@@ -35,12 +35,16 @@ app.get("/urls/new", (req, res) => {
 
 // Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]['longURL'],
-    user: userDatabase[req.session.user_id]
-  };
-  res.render("urls_show", templateVars);
+  if (userDatabase[req.session.user_id]) {
+    const templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL]['longURL'],
+      user: userDatabase[req.session.user_id]
+    };
+    res.render("urls_show", templateVars);
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Creates login page
@@ -102,7 +106,7 @@ app.get("/", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  if (email === "" | password === "") {
+  if (!email | !password) {
     res.status(400).send("Error: Please fill in both fields!");
   } else if (checkEmailExists(email)) {
     res.status(400).send("Error: This email already exists!");
