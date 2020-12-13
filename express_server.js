@@ -35,7 +35,7 @@ app.get("/urls/new", (req, res) => {
 
 // Creates the page for each URL
 app.get("/urls/:shortURL", (req, res) => {
-  if (userDatabase[req.session.user_id]) {
+  if (urlDatabase[req.params.shortURL]['userID'] === req.session.user_id) {
     const templateVars = {
       shortURL: req.params.shortURL,
       longURL: urlDatabase[req.params.shortURL]['longURL'],

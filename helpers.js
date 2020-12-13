@@ -56,8 +56,22 @@ const getUserByEmail = function(userEmail, userDatabase) {
   }
 };
 
+// Return User ID
 const getUserById = function(userId) {
   return userDatabase[userId];
-}
+};
 
-module.exports = { urlDatabase, userDatabase, getUserByEmail, addNewUser, checkEmailExists, urlsForUser, generateRandomString, getUserById };
+// Returns number of unique visitors that have used the shortURL link
+const getUniqueVisitors = function(shortURL) {
+  let arrOfUsers = urlDatabase[shortURL]['visitorIDs'];
+  let uniqueVisitors = [];
+  arrOfUsers.forEach(function(users) {
+    if (uniqueVisitors.includes(users)) {
+    } else {
+      uniqueVisitors.push(users);
+    }
+  })
+  return uniqueVisitors.length;
+};
+
+module.exports = { urlDatabase, userDatabase, getUserByEmail, addNewUser, checkEmailExists, urlsForUser, generateRandomString, getUserById, getUniqueVisitors };
