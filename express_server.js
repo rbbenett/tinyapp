@@ -87,10 +87,6 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/", (req, res) => {
   if (userDatabase[req.session.user_id]) {
     res.redirect('/urls');
@@ -121,7 +117,7 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  if (checkEmailExists(email) === false) {
+  if (!checkEmailExists(email)) {
     res.status(403).send("Error: Couldn't find an account with that email!");
   }  else if (bcrypt.compareSync(password, getUserByEmail(email, userDatabase)["password"])) {
     const userID = getUserByEmail(email, userDatabase)["id"];
